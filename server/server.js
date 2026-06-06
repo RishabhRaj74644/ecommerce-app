@@ -56,11 +56,6 @@ const allowedOrigins = [
   process.env.CLIENT_URL,
 ].filter(Boolean)
 
-const allowedOrigins = [
-  'http://localhost:5173',
-  process.env.CLIENT_URL,
-].filter(Boolean)
-
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin || allowedOrigins.includes(origin)) {
