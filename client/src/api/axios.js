@@ -1,7 +1,10 @@
 import axios from 'axios'
+import { toast } from 'react-toastify'
+
+const BACKEND_URL = 'https://ecommerce-backend-1znr.onrender.com/api'
 
 const api = axios.create({
-  baseURL: 'https://ecommerce-backend-1znr.onrender.com/api',
+  baseURL: BACKEND_URL,
   withCredentials: true,
 })
 
@@ -22,13 +25,11 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config
 
-    // Network error
     if (!error.response) {
       toast.error('Network error — check your connection')
       return Promise.reject(error)
     }
 
-    // 401 — Token expire
     if (
       error.response?.status === 401 &&
       !originalRequest._retry
@@ -36,7 +37,7 @@ api.interceptors.response.use(
       originalRequest._retry = true
       try {
         const { data } = await axios.post(
-          '/api/auth/refresh-token',
+          `${BACKEND_URL}/auth/refresh-token`,  // ← FIXED
           {},
           { withCredentials: true }
         )
@@ -56,18 +57,15 @@ api.interceptors.response.use(
       }
     }
 
-    // 403 — Forbidden
     if (error.response?.status === 403) {
       toast.error('Access denied!')
       window.location.href = '/'
     }
 
-    // 429 — Rate limit
     if (error.response?.status === 429) {
       toast.error('Too many requests! Please wait.')
     }
 
-    // 500 — Server error
     if (error.response?.status === 500) {
       toast.error('Server error! Please try again.')
     }
